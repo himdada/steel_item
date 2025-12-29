@@ -22,12 +22,12 @@
 Windows PowerShell：
 ```powershell
 cd d:\steel\demo
-.\u006d
+.\u006d
 ```
 
 或使用更详细输出：
 ```powershell
-.\u006d -U clean package
+.\u006d -U clean package
 ```
 
 构建成功会生成 `target/demo-0.0.1-SNAPSHOT.jar`。
@@ -43,7 +43,7 @@ java -jar target\demo-0.0.1-SNAPSHOT.jar
 ### 3) 启动（embedded 内存 Mongo 模式）
 无需安装 MongoDB，适合快速体验：
 ```powershell
-.\u006d spring-boot:run -Dspring-boot.run.profiles=embedded
+.\u006d   spring-boot:run -Dspring-boot.run.profiles=embedded
 ```
 或使用可执行 JAR：
 ```powershell
@@ -133,13 +133,13 @@ curl.exe -s -i -X POST -F "file=@d:\\steel\\sample.csv;type=text/csv" \
 ## 开发辅助
 - 运行单元测试
 ```powershell
-.\u006d -q test
+.\u006d         -q test
 ```
 - 开发模式运行（自动加载变更）
 ```powershell
-.\u006d spring-boot:run
+.\u006d      spring-boot:run
 # 或指定内存 Mongo
-. spring-boot:run -Dspring-boot.run.profiles=embedded
+. spring-boot:run -Dspring-boot.run.profiles=embedded
 ```
 
 ---
