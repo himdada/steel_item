@@ -117,6 +117,7 @@
             <div class="card-header">
                 <h3>筛选查询</h3>
                 <div class="flex gap-2">
+                    <button class="btn btn-secondary btn-sm" id="exportBtn">导出 Excel</button>
                     <button class="btn btn-secondary btn-sm" id="resetBtn">重置条件</button>
                     <button class="btn btn-primary btn-sm" id="searchBtn">查询</button>
                 </div>
@@ -490,6 +491,34 @@
         document.querySelectorAll('.card-body input').forEach(i => i.value = '');
         document.querySelectorAll('.card-body select').forEach(s => s.value = '');
         state.page = 0; loadData();
+    });
+    document.getElementById('exportBtn').addEventListener('click', async () => {
+        const btn = document.getElementById('exportBtn');
+        const original = btn.textContent;
+        btn.textContent = '导出中...';
+        btn.disabled = true;
+        const params = new URLSearchParams({
+            sortBy: state.sortBy,
+            direction: state.direction,
+            ...collectFilters()
+        });
+        try {
+            const res = await fetch(`${apiBase}/export?${params.toString()}`);
+            if (!res.ok) throw new Error('导出失败');
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'steel_items.xlsx';
+            a.click();
+            window.URL.revokeObjectURL(url);
+            showToast('导出完成');
+        } catch (e) {
+            showToast(e.message || '导出失败', 'error');
+        } finally {
+            btn.textContent = original;
+            btn.disabled = false;
+        }
     });
     document.getElementById('prevBtn').addEventListener('click', () => { if (state.page > 0) { state.page--; loadData(); } });
     document.getElementById('nextBtn').addEventListener('click', () => { if (state.page + 1 < state.totalPages) { state.page++; loadData(); } });

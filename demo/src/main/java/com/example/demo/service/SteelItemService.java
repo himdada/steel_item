@@ -1,11 +1,13 @@
 package com.example.demo.service;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +23,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -50,71 +53,7 @@ public class SteelItemService {
     }
 
     public Page<SteelItem> search(SteelItemQuery filter, int page, int size, String sortBy, Sort.Direction direction) {
-        Query query = new Query();
-        List<Criteria> criteriaList = new ArrayList<>();
-
-        if (filter.getId() != null && !filter.getId().isBlank()) {
-            criteriaList.add(Criteria.where("id").is(filter.getId().trim()));
-        }
-        if (filter.getCategory() != null && !filter.getCategory().isBlank()) {
-            criteriaList.add(Criteria.where("category").regex(filter.getCategory(), "i"));
-        }
-        if (filter.getProductName() != null && !filter.getProductName().isBlank()) {
-            criteriaList.add(Criteria.where("productName").regex(filter.getProductName(), "i"));
-        }
-        if (filter.getModel() != null && !filter.getModel().isBlank()) {
-            criteriaList.add(Criteria.where("model").regex(Pattern.compile(Pattern.quote(filter.getModel().trim()), Pattern.CASE_INSENSITIVE)));
-        }
-        if (filter.getBrand() != null && !filter.getBrand().isBlank()) {
-            criteriaList.add(Criteria.where("brand").regex(filter.getBrand(), "i"));
-        }
-        if (filter.getMaterial() != null && !filter.getMaterial().isBlank()) {
-            criteriaList.add(Criteria.where("material").regex(filter.getMaterial(), "i"));
-        }
-        if (filter.getOrigin() != null && !filter.getOrigin().isBlank()) {
-            criteriaList.add(Criteria.where("origin").regex(filter.getOrigin(), "i"));
-        }
-        if (filter.getSpec1() != null && !filter.getSpec1().isBlank()) {
-            criteriaList.add(Criteria.where("spec1").regex(filter.getSpec1(), "i"));
-        }
-        if (filter.getStandard() != null && !filter.getStandard().isBlank()) {
-            criteriaList.add(Criteria.where("standard").regex(filter.getStandard(), "i"));
-        }
-                if (filter.getSpec4() != null && !filter.getSpec4().isBlank()) {
-                    criteriaList.add(Criteria.where("spec4").regex(filter.getSpec4(), "i"));
-                }
-        if (filter.getProvince() != null && !filter.getProvince().isBlank()) {
-            criteriaList.add(Criteria.where("province").regex(filter.getProvince(), "i"));
-        }
-        if (filter.getCity() != null && !filter.getCity().isBlank()) {
-            criteriaList.add(Criteria.where("city").regex(filter.getCity(), "i"));
-        }
-        if (filter.getDistrict() != null && !filter.getDistrict().isBlank()) {
-            criteriaList.add(Criteria.where("district").regex(filter.getDistrict(), "i"));
-        }
-        if (filter.getCalcMode() != null && !filter.getCalcMode().isBlank()) {
-            criteriaList.add(Criteria.where("calcMode").regex(filter.getCalcMode(), "i"));
-        }
-        if (filter.getVisible() != null) {
-            criteriaList.add(Criteria.where("visible").is(filter.getVisible()));
-        }
-        if (filter.getMinPrice1() != null) {
-            criteriaList.add(Criteria.where("price1").gte(filter.getMinPrice1()));
-        }
-        if (filter.getMaxPrice1() != null) {
-            criteriaList.add(Criteria.where("price1").lte(filter.getMaxPrice1()));
-        }
-        if (filter.getMinSupplyPrice() != null) {
-            criteriaList.add(Criteria.where("supplyPrice").gte(filter.getMinSupplyPrice()));
-        }
-        if (filter.getMaxSupplyPrice() != null) {
-            criteriaList.add(Criteria.where("supplyPrice").lte(filter.getMaxSupplyPrice()));
-        }
-
-        if (!criteriaList.isEmpty()) {
-            query.addCriteria(new Criteria().andOperator(criteriaList.toArray(new Criteria[0])));
-        }
-
+        Query query = buildFilterQuery(filter);
         Sort sort = Sort.by(direction, sortBy == null || sortBy.isBlank() ? "updatedAt" : sortBy);
         PageRequest pageable = PageRequest.of(page, size, sort);
         query.with(pageable);
@@ -265,6 +204,149 @@ public class SteelItemService {
         }
     }
 
+    public byte[] exportToExcel(SteelItemQuery filter, String sortBy, Sort.Direction direction) {
+        try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            Sheet sheet = workbook.createSheet("数据");
+            String[] headers = new String[] {
+                    "ID", "类别", "品名", "型号", "每米重量", "长度mm",
+                    "规格1", "规格2", "规格3", "规格4", "规格5",
+                    "单位", "材质", "标准", "品牌", "产地",
+                    "省", "市", "区",
+                    "价格1", "价格2", "价格3", "价格4", "价格5",
+                    "计算方式", "库存", "预测变化", "联系人", "供货价", "差价",
+                    "备注", "是否显示", "创建时间", "更新时间"
+            };
+
+            Row headerRow = sheet.createRow(0);
+            for (int i = 0; i < headers.length; i++) {
+                headerRow.createCell(i).setCellValue(headers[i]);
+            }
+
+            Query query = buildFilterQuery(filter);
+            Sort sort = Sort.by(direction, sortBy == null || sortBy.isBlank() ? "updatedAt" : sortBy);
+            query.with(sort);
+            List<SteelItem> items = mongoTemplate.find(query, SteelItem.class);
+
+            DateTimeFormatter dtf = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+            int rowIdx = 1;
+            for (SteelItem item : items) {
+                Row row = sheet.createRow(rowIdx++);
+                int c = 0;
+                row.createCell(c++).setCellValue(nullToEmpty(item.getId()));
+                row.createCell(c++).setCellValue(nullToEmpty(item.getCategory()));
+                row.createCell(c++).setCellValue(nullToEmpty(item.getProductName()));
+                row.createCell(c++).setCellValue(nullToEmpty(item.getModel()));
+                row.createCell(c++).setCellValue(toString(item.getWeightPerMeter()));
+                row.createCell(c++).setCellValue(toString(item.getLengthMm()));
+                row.createCell(c++).setCellValue(nullToEmpty(item.getSpec1()));
+                row.createCell(c++).setCellValue(nullToEmpty(item.getSpec2()));
+                row.createCell(c++).setCellValue(nullToEmpty(item.getSpec3()));
+                row.createCell(c++).setCellValue(nullToEmpty(item.getSpec4()));
+                row.createCell(c++).setCellValue(nullToEmpty(item.getSpec5()));
+                row.createCell(c++).setCellValue(nullToEmpty(item.getUnit()));
+                row.createCell(c++).setCellValue(nullToEmpty(item.getMaterial()));
+                row.createCell(c++).setCellValue(nullToEmpty(item.getStandard()));
+                row.createCell(c++).setCellValue(nullToEmpty(item.getBrand()));
+                row.createCell(c++).setCellValue(nullToEmpty(item.getOrigin()));
+                row.createCell(c++).setCellValue(nullToEmpty(item.getProvince()));
+                row.createCell(c++).setCellValue(nullToEmpty(item.getCity()));
+                row.createCell(c++).setCellValue(nullToEmpty(item.getDistrict()));
+                row.createCell(c++).setCellValue(toString(item.getPrice1()));
+                row.createCell(c++).setCellValue(toString(item.getPrice2()));
+                row.createCell(c++).setCellValue(toString(item.getPrice3()));
+                row.createCell(c++).setCellValue(toString(item.getPrice4()));
+                row.createCell(c++).setCellValue(toString(item.getPrice5()));
+                row.createCell(c++).setCellValue(nullToEmpty(item.getCalcMode()));
+                row.createCell(c++).setCellValue(toString(item.getInventory()));
+                row.createCell(c++).setCellValue(toString(item.getForecastChange()));
+                row.createCell(c++).setCellValue(nullToEmpty(item.getContact()));
+                row.createCell(c++).setCellValue(toString(item.getSupplyPrice()));
+                row.createCell(c++).setCellValue(toString(item.getDiffPrice()));
+                row.createCell(c++).setCellValue(nullToEmpty(item.getRemark()));
+                row.createCell(c++).setCellValue(item.getVisible() == null ? "" : String.valueOf(item.getVisible()));
+                row.createCell(c++).setCellValue(item.getCreatedAt() == null ? "" : dtf.format(item.getCreatedAt()));
+                row.createCell(c++).setCellValue(item.getUpdatedAt() == null ? "" : dtf.format(item.getUpdatedAt()));
+            }
+
+            for (int i = 0; i < headers.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            workbook.write(out);
+            return out.toByteArray();
+        } catch (Exception ex) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "导出 Excel 失败: " + ex.getMessage(), ex);
+        }
+    }
+
+    private Query buildFilterQuery(SteelItemQuery filter) {
+        Query query = new Query();
+        List<Criteria> criteriaList = new ArrayList<>();
+
+        if (filter.getId() != null && !filter.getId().isBlank()) {
+            criteriaList.add(Criteria.where("id").is(filter.getId().trim()));
+        }
+        if (filter.getCategory() != null && !filter.getCategory().isBlank()) {
+            criteriaList.add(Criteria.where("category").regex(filter.getCategory(), "i"));
+        }
+        if (filter.getProductName() != null && !filter.getProductName().isBlank()) {
+            criteriaList.add(Criteria.where("productName").regex(filter.getProductName(), "i"));
+        }
+        if (filter.getModel() != null && !filter.getModel().isBlank()) {
+            criteriaList.add(Criteria.where("model").regex(Pattern.compile(Pattern.quote(filter.getModel().trim()), Pattern.CASE_INSENSITIVE)));
+        }
+        if (filter.getBrand() != null && !filter.getBrand().isBlank()) {
+            criteriaList.add(Criteria.where("brand").regex(filter.getBrand(), "i"));
+        }
+        if (filter.getMaterial() != null && !filter.getMaterial().isBlank()) {
+            criteriaList.add(Criteria.where("material").regex(filter.getMaterial(), "i"));
+        }
+        if (filter.getOrigin() != null && !filter.getOrigin().isBlank()) {
+            criteriaList.add(Criteria.where("origin").regex(filter.getOrigin(), "i"));
+        }
+        if (filter.getSpec1() != null && !filter.getSpec1().isBlank()) {
+            criteriaList.add(Criteria.where("spec1").regex(filter.getSpec1(), "i"));
+        }
+        if (filter.getStandard() != null && !filter.getStandard().isBlank()) {
+            criteriaList.add(Criteria.where("standard").regex(filter.getStandard(), "i"));
+        }
+        if (filter.getSpec4() != null && !filter.getSpec4().isBlank()) {
+            criteriaList.add(Criteria.where("spec4").regex(filter.getSpec4(), "i"));
+        }
+        if (filter.getProvince() != null && !filter.getProvince().isBlank()) {
+            criteriaList.add(Criteria.where("province").regex(filter.getProvince(), "i"));
+        }
+        if (filter.getCity() != null && !filter.getCity().isBlank()) {
+            criteriaList.add(Criteria.where("city").regex(filter.getCity(), "i"));
+        }
+        if (filter.getDistrict() != null && !filter.getDistrict().isBlank()) {
+            criteriaList.add(Criteria.where("district").regex(filter.getDistrict(), "i"));
+        }
+        if (filter.getCalcMode() != null && !filter.getCalcMode().isBlank()) {
+            criteriaList.add(Criteria.where("calcMode").regex(filter.getCalcMode(), "i"));
+        }
+        if (filter.getVisible() != null) {
+            criteriaList.add(Criteria.where("visible").is(filter.getVisible()));
+        }
+        if (filter.getMinPrice1() != null) {
+            criteriaList.add(Criteria.where("price1").gte(filter.getMinPrice1()));
+        }
+        if (filter.getMaxPrice1() != null) {
+            criteriaList.add(Criteria.where("price1").lte(filter.getMaxPrice1()));
+        }
+        if (filter.getMinSupplyPrice() != null) {
+            criteriaList.add(Criteria.where("supplyPrice").gte(filter.getMinSupplyPrice()));
+        }
+        if (filter.getMaxSupplyPrice() != null) {
+            criteriaList.add(Criteria.where("supplyPrice").lte(filter.getMaxSupplyPrice()));
+        }
+
+        if (!criteriaList.isEmpty()) {
+            query.addCriteria(new Criteria().andOperator(criteriaList.toArray(new Criteria[0])));
+        }
+        return query;
+    }
+
     private static String normalizeHeader(String header) {
         String h = header.trim();
 
@@ -377,6 +459,18 @@ public class SteelItemService {
             case "false", "0", "no", "n", "否", "隐藏" -> false;
             default -> null;
         };
+    }
+
+    private static String nullToEmpty(String value) {
+        return value == null ? "" : value;
+    }
+
+    private static String toString(BigDecimal value) {
+        return value == null ? "" : value.stripTrailingZeros().toPlainString();
+    }
+
+    private static String toString(Integer value) {
+        return value == null ? "" : String.valueOf(value);
     }
 
     private static void applyCellToItem(SteelItem item, String field, Cell cell) {

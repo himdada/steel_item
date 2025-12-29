@@ -4,7 +4,11 @@ import java.io.IOException;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -93,6 +97,69 @@ public class SteelItemController {
         }
 
         return service.search(filter, page, size, sortBy, direction);
+    }
+
+    @GetMapping(path = "/export")
+    public ResponseEntity<byte[]> export(
+            @RequestParam(name = "sortBy", defaultValue = "updatedAt") String sortBy,
+            @RequestParam(name = "direction", defaultValue = "DESC") Sort.Direction direction,
+            @RequestParam(name = "id", required = false) String id,
+            @RequestParam(name = "category", required = false) String category,
+            @RequestParam(name = "productName", required = false) String productName,
+            @RequestParam(name = "model", required = false) String model,
+            @RequestParam(name = "brand", required = false) String brand,
+            @RequestParam(name = "material", required = false) String material,
+            @RequestParam(name = "origin", required = false) String origin,
+            @RequestParam(name = "spec1", required = false) String spec1,
+            @RequestParam(name = "standard", required = false) String standard,
+            @RequestParam(name = "province", required = false) String province,
+            @RequestParam(name = "city", required = false) String city,
+            @RequestParam(name = "district", required = false) String district,
+            @RequestParam(name = "spec4", required = false) String spec4,
+            @RequestParam(name = "calcMode", required = false) String calcMode,
+            @RequestParam(name = "visible", required = false) String visible,
+            @RequestParam(name = "minPrice1", required = false) String minPrice1,
+            @RequestParam(name = "maxPrice1", required = false) String maxPrice1,
+            @RequestParam(name = "minSupplyPrice", required = false) String minSupplyPrice,
+            @RequestParam(name = "maxSupplyPrice", required = false) String maxSupplyPrice) {
+
+        SteelItemQuery filter = new SteelItemQuery();
+        filter.setId(id);
+        filter.setCategory(category);
+        filter.setProductName(productName);
+        filter.setModel(model);
+        filter.setBrand(brand);
+        filter.setMaterial(material);
+        filter.setOrigin(origin);
+        filter.setSpec1(spec1);
+        filter.setStandard(standard);
+        filter.setProvince(province);
+        filter.setCity(city);
+        filter.setDistrict(district);
+        filter.setSpec4(spec4);
+        filter.setCalcMode(calcMode);
+        if (visible != null && !visible.isBlank()) {
+            filter.setVisible(Boolean.parseBoolean(visible));
+        }
+        if (minPrice1 != null && !minPrice1.isBlank()) {
+            filter.setMinPrice1(new java.math.BigDecimal(minPrice1));
+        }
+        if (maxPrice1 != null && !maxPrice1.isBlank()) {
+            filter.setMaxPrice1(new java.math.BigDecimal(maxPrice1));
+        }
+        if (minSupplyPrice != null && !minSupplyPrice.isBlank()) {
+            filter.setMinSupplyPrice(new java.math.BigDecimal(minSupplyPrice));
+        }
+        if (maxSupplyPrice != null && !maxSupplyPrice.isBlank()) {
+            filter.setMaxSupplyPrice(new java.math.BigDecimal(maxSupplyPrice));
+        }
+
+        byte[] data = service.exportToExcel(filter, sortBy, direction);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+        headers.setContentDisposition(ContentDisposition.attachment().filename("steel_items.xlsx").build());
+        headers.setContentLength(data.length);
+        return new ResponseEntity<>(data, headers, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
