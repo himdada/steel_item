@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>钢材市场分析平台</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg-body: #f3f4f6;
+            --bg-card: #ffffff;
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --danger: #ef4444;
+            --success: #10b981;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+
+        * { box-sizing: border-box; }
+        body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; margin: 0; background: var(--bg-body); color: var(--text-main); line-height: 1.5; }
+        
+        /* Layout */
+        .app-container { display: flex; flex-direction: column; min-height: 100vh; }
+        header { background: #fff; border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow); position: sticky; top: 0; z-index: 50; }
+        header h1 { margin: 0; font-size: 1.25rem; font-weight: 600; color: var(--primary); display: flex; align-items: center; gap: 0.5rem; }
+        header h1::before { content: ''; display: block; width: 24px; height: 24px; background: currentColor; mask: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>') no-repeat center; -webkit-mask: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>') no-repeat center; }
+
+        main { flex: 1; padding: 2rem; max-width: 1600px; margin: 0 auto; width: 100%; display: grid; gap: 1.5rem; }
+
+        /* Components */
+        .card { background: var(--bg-card); border-radius: 0.5rem; box-shadow: var(--shadow); border: 1px solid var(--border); overflow: hidden; }
+        .card-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); background: #f9fafb; display: flex; justify-content: space-between; align-items: center; }
+        .card-header h3 { margin: 0; font-size: 1rem; font-weight: 600; color: #374151; }
+        .card-body { padding: 1.5rem; }
+
+        /* Forms & Inputs */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
+        .form-group { display: flex; flex-direction: column; gap: 0.375rem; }
+        .form-group label { font-size: 0.875rem; font-weight: 500; color: #374151; }
+        .form-control { padding: 0.5rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.375rem; font-size: 0.875rem; transition: border-color 0.15s; width: 100%; }
+        .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        
+        /* Buttons */
+        .btn { display: inline-flex; align-items: center; justify-content: center; padding: 0.5rem 1rem; border-radius: 0.375rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: all 0.15s; border: 1px solid transparent; gap: 0.5rem; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-secondary { background: white; border-color: #d1d5db; color: #374151; }
+        .btn-secondary:hover { background: #f3f4f6; }
+        .btn-danger { background: #fee2e2; color: #991b1b; }
+        .btn-danger:hover { background: #fecaca; }
+        .btn-sm { padding: 0.25rem 0.5rem; font-size: 0.75rem; }
+
+   
+        .table-container { overflow-x: auto; border: 1px solid var(--border); border-radius: 0.375rem; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.875rem; white-space: nowrap; }
+        th { background: #f9fafb; font-weight: 600; text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; position: sticky; top: 0; z-index: 10; }
+        th:hover { background: #f3f4f6; }
+        td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); color: #4b5563; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #f9fafb; }
+        
+   
+        .flex { display: flex; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-4 { gap: 1rem; }
+        .mt-4 { margin-top: 1rem; }
+        .text-sm { font-size: 0.875rem; }
+        .text-muted { color: var(--text-muted); }
+        .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+        
+    
+        .badge { display: inline-flex; align-items: center; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
+        .badge-blue { background: #dbeafe; color: #1e40af; }
+        .badge-green { background: #d1fae5; color: #065f46; }
+        .badge-yellow { background: #fef3c7; color: #92400e; }
+
+  
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 350px; gap: 1.5rem; align-items: start; }
+        @media (max-width: 1024px) { .dashboard-grid { grid-template-columns: 1fr; } }
+
+   
+        .toast { position: fixed; bottom: 2rem; right: 2rem; background: #333; color: white; padding: 0.75rem 1.5rem; border-radius: 0.375rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); transform: translateY(150%); transition: transform 0.3s ease; z-index: 100; }
+        .toast.show { transform: translateY(0); }
+        .toast.error { background: var(--danger); }
+        .toast.success { background: var(--success); }
+
+        .file-upload-wrapper { position: relative; display: flex; gap: 0.5rem; align-items: center; }
+        input[type="file"] { font-size: 0.875rem; color: var(--text-muted); }
+        input[type="file"]::file-selector-button { margin-right: 1rem; padding: 0.5rem 1rem; border-radius: 0.375rem; border: 1px solid var(--border); background: white; cursor: pointer; font-weight: 500; transition: all 0.15s; }
+        input[type="file"]::file-selector-button:hover { background: #f9fafb; }
+
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header>
+        <h1>钢材市场分析平台</h1>
+        <div class="flex items-center gap-4">
+            <div class="file-upload-wrapper">
+                <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" />
+                <button class="btn btn-primary btn-sm" id="uploadBtn">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                    导入 Excel
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+
+        <section class="card">
+            <div class="card-header">
+                <h3>筛选查询</h3>
+                <div class="flex gap-2">
+                    <button class="btn btn-secondary btn-sm" id="resetBtn">重置条件</button>
+                    <button class="btn btn-primary btn-sm" id="searchBtn">查询</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="form-grid">
+                    <div class="form-group"><label>ID</label><input id="id" class="form-control" placeholder="如: 123"></div>
+                    <div class="form-group"><label>类型</label><input id="category" class="form-control" placeholder="如: 管材"></div>
+                    <div class="form-group"><label>品名</label><input id="productName" class="form-control" placeholder="如: 方管"></div>
+                    <div class="form-group"><label>型号</label><input id="model" class="form-control" placeholder="如: 40*40"></div>
+                    <div class="form-group"><label>规格1</label><input id="spec1" class="form-control" placeholder="如: 1.9"></div>
+                    <div class="form-group"><label>规格4</label><input id="spec4" class="form-control" placeholder="如: 100"></div>
+                    <div class="form-group"><label>品牌/厂家</label><input id="brand" class="form-control" placeholder="如: 天津恒利"></div>
+                    <div class="form-group"><label>材质</label><input id="material" class="form-control" placeholder="如: Q235B"></div>
+                    <div class="form-group"><label>执行标准</label><input id="standard" class="form-control" placeholder="如: GB/T 6728-2017"></div>
+                    <div class="form-group"><label>提货地/省</label><input id="province" class="form-control" placeholder="如: 天津"></div>
+                    <div class="form-group"><label>提货地/市</label><input id="city" class="form-control" placeholder="如: 天津"></div>
+                    <div class="form-group"><label>提货地/区</label><input id="district" class="form-control" placeholder="如: 西青"></div>
+                    <div class="form-group"><label>过磅/理计</label><input id="calcMode" class="form-control" placeholder="如: 过磅"></div>
+                    <div class="form-group"><label>价格1 (Min)</label><input id="minPrice1" type="number" class="form-control"></div>
+                    <div class="form-group"><label>价格1 (Max)</label><input id="maxPrice1" type="number" class="form-control"></div>
+                    <div class="form-group"><label>供货价 (Min)</label><input id="minSupplyPrice" type="number" class="form-control"></div>
+                    <div class="form-group"><label>供货价 (Max)</label><input id="maxSupplyPrice" type="number" class="form-control"></div>
+                    <div class="form-group"><label>是否显示</label><select id="visible" class="form-control"><option value="">全部</option><option value="true">显示</option><option value="false">隐藏</option></select></div>
+                </div>
+            </div>
+        </section>
+
+        <div class="dashboard-grid">
+
+            <section class="card" style="min-width: 0;"> 
+                <div class="card-header">
+                    <h3>数据列表</h3>
+                    <div class="flex items-center gap-2">
+                        <select id="size" class="form-control" style="width: auto; padding-right: 2rem;">
+                            <option value="10">10 条/页</option>
+                            <option value="20">20 条/页</option>
+                            <option value="50">50 条/页</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table id="dataTable">
+                        <thead>
+                        <tr>
+                            <th data-sort="id">id</th>
+                            <th data-sort="category">类型</th>
+                            <th data-sort="productName">品名</th>
+                            <th data-sort="model">型号</th>
+                            <th data-sort="spec1">规格1</th>
+                            <th data-sort="spec2">规格2</th>
+                            <th data-sort="spec3">规格3</th>
+                            <th data-sort="spec4">规格4</th>
+                            <th data-sort="spec5">规格5</th>
+                            <th data-sort="unit">单位</th>
+                            <th data-sort="material">材质</th>
+                            <th data-sort="standard">执行标准</th>
+                            <th data-sort="brand">品牌/厂家</th>
+                            <th data-sort="province">提货地/省</th>
+                            <th data-sort="city">提货地/市</th>
+                            <th data-sort="district">提货地/区</th>
+                            <th data-sort="price1">默认价</th>
+                            <th data-sort="price2">二等价</th>
+                            <th data-sort="price3">三等价</th>
+                            <th data-sort="price4">四等价</th>
+                            <th data-sort="price5">五等价</th>
+                            <th data-sort="calcMode">过磅/理计</th>
+                            <th data-sort="remark">备注</th>
+                            <th data-sort="inventory">库存</th>
+                            <th data-sort="supplyPrice">供货价</th>
+                            <th data-sort="diffPrice">差价</th>
+                            <th data-sort="visible">是否显示</th>
+                            <th data-sort="contact">联系方式</th>
+                            <th data-sort="updatedAt">更新时间</th>
+                            <th style="text-align: right">操作</th>
+                        </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div class="card-body flex justify-between items-center" style="border-top: 1px solid var(--border); padding: 0.75rem 1.5rem;">
+                    <span id="pageInfo" class="text-sm text-muted">加载中...</span>
+                    <div class="flex gap-2">
+                        <button class="btn btn-secondary btn-sm" id="prevBtn">上一页</button>
+                        <button class="btn btn-secondary btn-sm" id="nextBtn">下一页</button>
+                    </div>
+                </div>
+            </section>
+
+          
+            <section class="card form-card">
+                <div class="card-header">
+                    <h3>新增 / 编辑</h3>
+                    <button class="btn btn-secondary btn-sm" id="cancelEdit">清空</button>
+                </div>
+                <div class="card-body">
+                    <form id="editForm" class="flex" style="flex-direction: column; gap: 1rem;">
+                        <input type="hidden" id="itemId">
+                        <div class="form-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
+                            <div class="form-group"><label>类型</label><input id="f_category" class="form-control" required></div>
+                            <div class="form-group"><label>品名</label><input id="f_productName" class="form-control" required></div>
+                            <div class="form-group"><label>型号</label><input id="f_model" class="form-control" required></div>
+                        </div>
+                        <div class="form-grid" style="grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));">
+                            <div class="form-group"><label>规格1</label><input id="f_spec1" class="form-control"></div>
+                            <div class="form-group"><label>规格2</label><input id="f_spec2" class="form-control"></div>
+                            <div class="form-group"><label>规格3</label><input id="f_spec3" class="form-control"></div>
+                            <div class="form-group"><label>规格4</label><input id="f_spec4" class="form-control"></div>
+                            <div class="form-group"><label>规格5</label><input id="f_spec5" class="form-control"></div>
+                        </div>
+                        <div class="form-grid" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));">
+                            <div class="form-group"><label>单位</label><input id="f_unit" class="form-control"></div>
+                            <div class="form-group"><label>材质</label><input id="f_material" class="form-control"></div>
+                            <div class="form-group"><label>执行标准</label><input id="f_standard" class="form-control"></div>
+                            <div class="form-group"><label>品牌/厂家</label><input id="f_brand" class="form-control"></div>
+                        </div>
+                        <div class="form-grid" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));">
+                            <div class="form-group"><label>提货地/省</label><input id="f_province" class="form-control"></div>
+                            <div class="form-group"><label>提货地/市</label><input id="f_city" class="form-control"></div>
+                            <div class="form-group"><label>提货地/区</label><input id="f_district" class="form-control"></div>
+                        </div>
+                        <div class="form-grid" style="grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));">
+                            <div class="form-group"><label>默认价格</label><input id="f_price1" type="number" step="0.01" class="form-control"></div>
+                            <div class="form-group"><label>二等价格</label><input id="f_price2" type="number" step="0.01" class="form-control"></div>
+                            <div class="form-group"><label>三等价格</label><input id="f_price3" type="number" step="0.01" class="form-control"></div>
+                            <div class="form-group"><label>四等价格</label><input id="f_price4" type="number" step="0.01" class="form-control"></div>
+                            <div class="form-group"><label>五等价格</label><input id="f_price5" type="number" step="0.01" class="form-control"></div>
+                        </div>
+                        <div class="form-grid" style="grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));">
+                            <div class="form-group"><label>供货价</label><input id="f_supplyPrice" type="number" step="0.01" class="form-control"></div>
+                            <div class="form-group"><label>差价</label><input id="f_diffPrice" type="number" step="0.01" class="form-control"></div>
+                            <div class="form-group"><label>库存</label><input id="f_inventory" type="number" class="form-control"></div>
+                            <div class="form-group"><label>过磅/理计</label><input id="f_calcMode" class="form-control" placeholder="如: 过磅"></div>
+                            <div class="form-group"><label>是否显示</label><select id="f_visible" class="form-control"><option value="">默认</option><option value="true">显示</option><option value="false">隐藏</option></select></div>
+                        </div>
+                        <div class="form-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
+                            <div class="form-group"><label>联系人/供应商</label><input id="f_contact" class="form-control"></div>
+                            <div class="form-group" style="grid-column: 1 / -1;"><label>备注</label><textarea id="f_remark" class="form-control" rows="2" style="resize: vertical;"></textarea></div>
+                        </div>
+                        <!-- Collapsible Details -->
+                        <details style="font-size: 0.875rem; color: var(--text-muted); cursor: pointer;">
+                            <summary>更多详细信息...</summary>
+                            <div class="form-grid mt-4" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));">
+                                <div class="form-group"><label>支重</label><input id="f_weightPerMeter" type="number" step="0.001" class="form-control"></div>
+                                <div class="form-group"><label>长度</label><input id="f_lengthMm" type="number" class="form-control"></div>
+                                <div class="form-group"><label>产地</label><input id="f_origin" class="form-control"></div>
+                            </div>
+                        </details>
+
+                        <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem;">保存提交</button>
+                    </form>
+                </div>
+            </section>
+        </div>
+    </main>
+</div>
+
+<div id="toast" class="toast">操作成功</div>
+
+<script>
+    const apiBase = '/api/steel-items';
+    let state = { page: 0, size: 10, sortBy: 'updatedAt', direction: 'DESC', totalPages: 0 };
+
+    // --- UI Helpers ---
+    const showToast = (msg, type = 'success') => {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.className = `toast show ${type}`;
+        setTimeout(() => t.className = 'toast', 3000);
+    };
+
+    // --- Data Loading ---
+    const tbody = document.querySelector('#dataTable tbody');
+    const pageInfo = document.querySelector('#pageInfo');
+
+    async function loadData() {
+        const params = new URLSearchParams({
+            page: state.page,
+            size: state.size,
+            sortBy: state.sortBy,
+            direction: state.direction,
+            ...collectFilters()
+        });
+        
+        try {
+            tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding: 2rem;">加载中...</td></tr>';
+            const res = await fetch(`${apiBase}?${params.toString()}`);
+            if (!res.ok) throw new Error('加载失败');
+            const pageData = await res.json();
+            
+            state.totalPages = pageData.totalPages;
+            renderRows(pageData.content);
+            pageInfo.textContent = `第 ${state.page + 1} / ${state.totalPages || 1} 页 (共 ${pageData.totalElements} 条)`;
+        } catch (e) {
+            tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; color:red;">${e.message}</td></tr>`;
+        }
+    }
+
+    function renderRows(items) {
+        tbody.innerHTML = '';
+        if (!items || items.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding: 2rem; color: #9ca3af;">暂无数据</td></tr>';
+            return;
+        }
+        items.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="font-mono">${item.id || '-'}</td>
+                <td><span class="badge badge-blue">${item.category || '-'}</span></td>
+                <td style="font-weight: 500;">${item.productName || '-'}</td>
+                <td>${item.model || '-'}</td>
+                <td>${item.spec1 || '-'}</td>
+                <td>${item.spec2 || '-'}</td>
+                <td>${item.spec3 || '-'}</td>
+                <td>${item.spec4 || '-'}</td>
+                <td>${item.spec5 || '-'}</td>
+                <td>${item.unit || '-'}</td>
+                <td>${item.material || '-'}</td>
+                <td>${item.standard || '-'}</td>
+                <td>${item.brand || '-'}</td>
+                <td>${item.province || '-'}</td>
+                <td>${item.city || '-'}</td>
+                <td>${item.district || '-'}</td>
+                <td class="font-mono" style="color: #d97706;">${item.price1 ?? '-'}</td>
+                <td class="font-mono" style="color: #d97706;">${item.price2 ?? '-'}</td>
+                <td class="font-mono" style="color: #d97706;">${item.price3 ?? '-'}</td>
+                <td class="font-mono" style="color: #d97706;">${item.price4 ?? '-'}</td>
+                <td class="font-mono" style="color: #d97706;">${item.price5 ?? '-'}</td>
+                <td>${item.calcMode || '-'}</td>
+                <td>${item.remark || '-'}</td>
+                <td>${item.inventory ?? '-'}</td>
+                <td class="font-mono" style="color: #059669;">${item.supplyPrice ?? '-'}</td>
+                <td class="font-mono" style="color: #ef4444;">${item.diffPrice ?? '-'}</td>
+                <td>${item.visible === null || item.visible === undefined ? '-' : (item.visible ? '是' : '否')}</td>
+                <td>${item.contact || '-'}</td>
+                <td class="text-sm text-muted">${item.updatedAt ? new Date(item.updatedAt).toLocaleDateString() : '-'}</td>
+                <td style="text-align: right;">
+                    <button class="btn btn-secondary btn-sm" data-action="edit">编辑</button>
+                    <button class="btn btn-danger btn-sm" data-action="delete" style="margin-left: 4px;">×</button>
+                </td>`;
+            
+            tr.querySelector('[data-action="edit"]').addEventListener('click', () => {
+                fillForm(item);
+                document.querySelector('.form-card').scrollIntoView({ behavior: 'smooth' });
+            });
+            tr.querySelector('[data-action="delete"]').addEventListener('click', async () => {
+                if (confirm('确认删除该条目？')) {
+                    try {
+                        await fetch(`${apiBase}/${item.id}`, { method: 'DELETE' });
+                        showToast('删除成功');
+                        loadData();
+                    } catch (e) {
+                        showToast('删除失败', 'error');
+                    }
+                }
+            });
+            tbody.appendChild(tr);
+        });
+    }
+
+    // --- Form Handling ---
+    function collectFilters() {
+        return {
+            id: document.getElementById('id').value,
+            category: document.getElementById('category').value,
+            productName: document.getElementById('productName').value,
+            model: document.getElementById('model').value,
+            spec1: document.getElementById('spec1').value,
+            spec4: document.getElementById('spec4').value,
+            brand: document.getElementById('brand').value,
+            material: document.getElementById('material').value,
+            standard: document.getElementById('standard').value,
+            province: document.getElementById('province').value,
+            city: document.getElementById('city').value,
+            district: document.getElementById('district').value,
+            calcMode: document.getElementById('calcMode').value,
+            origin: '',
+            minPrice1: document.getElementById('minPrice1').value,
+            maxPrice1: document.getElementById('maxPrice1').value,
+            minSupplyPrice: document.getElementById('minSupplyPrice').value,
+            maxSupplyPrice: document.getElementById('maxSupplyPrice').value,
+            visible: document.getElementById('visible').value
+        };
+    }
+
+    function collectForm() {
+        const val = id => document.getElementById(id).value || null;
+        const num = id => { const v = document.getElementById(id).value; return v === '' ? null : Number(v); };
+        const bool = id => { const v = document.getElementById(id).value; return v === '' ? null : v === 'true'; };
+        return {
+            category: val('f_category'),
+            productName: val('f_productName'),
+            model: val('f_model'),
+            brand: val('f_brand'),
+            material: val('f_material'),
+            standard: val('f_standard'),
+            province: val('f_province'),
+            city: val('f_city'),
+            district: val('f_district'),
+            spec1: val('f_spec1'),
+            spec2: val('f_spec2'),
+            spec3: val('f_spec3'),
+            spec4: val('f_spec4'),
+            spec5: val('f_spec5'),
+            price1: num('f_price1'),
+            price2: num('f_price2'),
+            price3: num('f_price3'),
+            price4: num('f_price4'),
+            price5: num('f_price5'),
+            supplyPrice: num('f_supplyPrice'),
+            diffPrice: num('f_diffPrice'),
+            inventory: num('f_inventory'),
+            unit: val('f_unit'),
+            calcMode: val('f_calcMode'),
+            remark: val('f_remark'),
+            visible: bool('f_visible'),
+            weightPerMeter: num('f_weightPerMeter'),
+            lengthMm: num('f_lengthMm'),
+            origin: val('f_origin'),
+            contact: val('f_contact')
+        };
+    }
+
+    function fillForm(item) {
+        document.getElementById('itemId').value = item.id || '';
+        document.getElementById('f_category').value = item.category || '';
+        document.getElementById('f_productName').value = item.productName || '';
+        document.getElementById('f_model').value = item.model || '';
+        document.getElementById('f_brand').value = item.brand || '';
+        document.getElementById('f_material').value = item.material || '';
+        document.getElementById('f_standard').value = item.standard || '';
+        document.getElementById('f_province').value = item.province || '';
+        document.getElementById('f_city').value = item.city || '';
+        document.getElementById('f_district').value = item.district || '';
+        document.getElementById('f_price1').value = item.price1 ?? '';
+        document.getElementById('f_price2').value = item.price2 ?? '';
+        document.getElementById('f_price3').value = item.price3 ?? '';
+        document.getElementById('f_price4').value = item.price4 ?? '';
+        document.getElementById('f_price5').value = item.price5 ?? '';
+        document.getElementById('f_supplyPrice').value = item.supplyPrice ?? '';
+        document.getElementById('f_diffPrice').value = item.diffPrice ?? '';
+        document.getElementById('f_inventory').value = item.inventory ?? '';
+        document.getElementById('f_unit').value = item.unit || '';
+        document.getElementById('f_calcMode').value = item.calcMode || '';
+        document.getElementById('f_remark').value = item.remark || '';
+        document.getElementById('f_visible').value = item.visible === null || item.visible === undefined ? '' : String(item.visible);
+        document.getElementById('f_weightPerMeter').value = item.weightPerMeter ?? '';
+        document.getElementById('f_lengthMm').value = item.lengthMm ?? '';
+        document.getElementById('f_origin').value = item.origin || '';
+        document.getElementById('f_contact').value = item.contact || '';
+        document.getElementById('f_spec1').value = item.spec1 || '';
+        document.getElementById('f_spec2').value = item.spec2 || '';
+        document.getElementById('f_spec3').value = item.spec3 || '';
+        document.getElementById('f_spec4').value = item.spec4 || '';
+        document.getElementById('f_spec5').value = item.spec5 || '';
+    }
+
+    function clearForm() {
+        document.getElementById('editForm').reset();
+        document.getElementById('itemId').value = '';
+    }
+
+    // --- Event Listeners ---
+    document.getElementById('searchBtn').addEventListener('click', () => { 
+        state.page = 0; 
+        state.sortBy = 'price1'; 
+        state.direction = 'ASC'; 
+        loadData(); 
+    });
+    document.getElementById('resetBtn').addEventListener('click', () => {
+        document.querySelectorAll('.card-body input').forEach(i => i.value = '');
+        document.querySelectorAll('.card-body select').forEach(s => s.value = '');
+        state.page = 0; loadData();
+    });
+    document.getElementById('prevBtn').addEventListener('click', () => { if (state.page > 0) { state.page--; loadData(); } });
+    document.getElementById('nextBtn').addEventListener('click', () => { if (state.page + 1 < state.totalPages) { state.page++; loadData(); } });
+    document.getElementById('size').addEventListener('change', (e) => { state.size = Number(e.target.value); state.page = 0; loadData(); });
+    
+    document.querySelectorAll('th[data-sort]').forEach(th => {
+        th.addEventListener('click', () => {
+            const field = th.dataset.sort;
+            state.direction = state.sortBy === field && state.direction === 'DESC' ? 'ASC' : 'DESC';
+            state.sortBy = field;
+            state.page = 0;
+            // Update sort icon visual (simplified)
+            document.querySelectorAll('th').forEach(t => t.style.background = '');
+            th.style.background = '#e5e7eb';
+            loadData();
+        });
+    });
+
+    document.getElementById('editForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('itemId').value;
+        const payload = collectForm();
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? `${apiBase}/${id}` : apiBase;
+        
+        try {
+            const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            if (!res.ok) throw new Error('保存失败');
+            showToast('保存成功');
+            clearForm();
+            loadData();
+        } catch (e) {
+            showToast(e.message, 'error');
+        }
+    });
+
+    document.getElementById('cancelEdit').addEventListener('click', clearForm);
+
+    // Upload Logic
+    document.getElementById('uploadBtn').addEventListener('click', async () => {
+        const fileInput = document.getElementById('excelFile');
+        if (!fileInput.files.length) { showToast('请先选择 Excel 文件', 'error'); return; }
+        
+        const btn = document.getElementById('uploadBtn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '上传中...';
+        btn.disabled = true;
+
+        const form = new FormData();
+        form.append('file', fileInput.files[0]);
+        
+        try {
+            const res = await fetch(`${apiBase}/upload`, { method: 'POST', body: form });
+            if (!res.ok) {
+                const text = await res.text();
+                throw new Error(text);
+            }
+            const data = await res.json();
+            showToast(`成功导入 ${data.importedCount} 条数据`);
+            loadData();
+            fileInput.value = ''; // clear input
+        } catch (e) {
+            showToast(`导入失败: ${e.message}`, 'error');
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    });
+
+    // Initial Load
+    loadData();
+</script>
+</body>
+</html>
