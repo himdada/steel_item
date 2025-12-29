@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -62,7 +63,7 @@ public class SteelItemService {
             criteriaList.add(Criteria.where("productName").regex(filter.getProductName(), "i"));
         }
         if (filter.getModel() != null && !filter.getModel().isBlank()) {
-            criteriaList.add(Criteria.where("model").regex(filter.getModel(), "i"));
+            criteriaList.add(Criteria.where("model").regex(Pattern.compile(Pattern.quote(filter.getModel().trim()), Pattern.CASE_INSENSITIVE)));
         }
         if (filter.getBrand() != null && !filter.getBrand().isBlank()) {
             criteriaList.add(Criteria.where("brand").regex(filter.getBrand(), "i"));
