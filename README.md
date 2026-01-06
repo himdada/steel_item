@@ -92,13 +92,13 @@ curl.exe -X POST -F "file=@d:\\steel\\sample.csv;type=text/csv" ^
 ## 开发与调试
 - 开发模式（热加载）：
 ```powershell
-..cmd spring-boot:run
+..cmd spring-boot:run
 # 内存 Mongo
-..cmd spring-boot:run -Dspring-boot.run.profiles=embedded
+.cmd spring-boot:run -Dspring-boot.run.profiles=embedded
 ```
 - 运行测试：
 ```powershell
-..cmd test
+.cmd test
 ```
 
 ## 常见问题
