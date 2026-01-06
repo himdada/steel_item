@@ -507,7 +507,7 @@ public class SteelItemService {
             case "remark" -> item.setRemark(trimToNull(readCellString(cell)));
             case "visible" -> item.setVisible(readCellBoolean(cell));
             default -> {
-                // ignore unknown columns
+              
             }
         }
     }
@@ -547,19 +547,18 @@ public class SteelItemService {
             case "remark" -> item.setRemark(trimToNull(raw));
             case "visible" -> item.setVisible(parseBoolean(raw));
             default -> {
-                // ignore unknown columns
+             
             }
         }
     }
 
-    // 将空白字符串统一为 null
+
     private static String trimToNull(String s) {
         if (s == null) return null;
         String t = s.trim();
         return t.isEmpty() ? null : t;
     }
 
-    // 判断该条目是否有效（至少有一个关键字段有值），用于过滤空行
     private static boolean isEffectivelyEmpty(SteelItem item) {
         boolean hasString =
                 notBlank(item.getCategory()) ||
@@ -595,9 +594,9 @@ public class SteelItemService {
                 item.getSupplyPrice() != null ||
                 item.getDiffPrice() != null;
 
-        boolean hasVisible = item.getVisible() != null; // 单独设置可见性不算有效数据，但参与判断
+        boolean hasVisible = item.getVisible() != null;
 
-        // 如果所有字段都为空且没有任何数值，视为空行
+       
         return !(hasString || hasNumber || hasVisible);
     }
 
