@@ -4,18 +4,48 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 @Document(collection = "steel_items")
+@CompoundIndexes({
+    @CompoundIndex(name = "category_productName_model_idx", def = "{'category': 1, 'productName': 1, 'model': 1}"),
+    @CompoundIndex(name = "brand_material_origin_idx", def = "{'brand': 1, 'material': 1, 'origin': 1}"),
+    @CompoundIndex(name = "province_city_district_idx", def = "{'province': 1, 'city': 1, 'district': 1}"),
+    @CompoundIndex(name = "price1_visible_idx", def = "{'price1': 1, 'visible': 1}"),
+    @CompoundIndex(name = "supplyPrice_visible_idx", def = "{'supplyPrice': 1, 'visible': 1}"),
+    @CompoundIndex(name = "updatedAt_idx", def = "{'updatedAt': -1}")
+})
 public class SteelItem {
 
     @Id
     private String id;
 
+    @NotBlank(message = "类别不能为空")
+    @Size(max = 50, message = "类别长度不能超过50个字符")
+    @Indexed
     private String category;
+
+    @NotBlank(message = "品名不能为空")
+    @Size(max = 100, message = "品名长度不能超过100个字符")
+    @Indexed
     private String productName;
+
+    @NotBlank(message = "型号不能为空")
+    @Size(max = 50, message = "型号长度不能超过50个字符")
+    @Indexed
     private String model;
+
+    @Min(value = 0, message = "每米重量不能为负数")
     private BigDecimal weightPerMeter;
+
+    @Min(value = 0, message = "长度不能为负数")
     private Integer lengthMm;
     private String spec1;
     private String spec2;
@@ -30,16 +60,32 @@ public class SteelItem {
     private String province;
     private String city;
     private String district;
+
+    @Min(value = 0, message = "价格1不能为负数")
     private BigDecimal price1;
+
+    @Min(value = 0, message = "价格2不能为负数")
     private BigDecimal price2;
+
+    @Min(value = 0, message = "价格3不能为负数")
     private BigDecimal price3;
+
+    @Min(value = 0, message = "价格4不能为负数")
     private BigDecimal price4;
+
+    @Min(value = 0, message = "价格5不能为负数")
     private BigDecimal price5;
+
     private String calcMode;
+
+    @Min(value = 0, message = "库存不能为负数")
     private Integer inventory;
     private BigDecimal forecastChange;
     private String contact;
+
+    @Min(value = 0, message = "供货价不能为负数")
     private BigDecimal supplyPrice;
+
     private BigDecimal diffPrice;
     private String remark;
     private Boolean visible;

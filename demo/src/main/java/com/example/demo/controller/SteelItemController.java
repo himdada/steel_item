@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.demo.model.FileUploadValidator;
 import com.example.demo.model.SteelItem;
 import com.example.demo.model.SteelItemQuery;
 import com.example.demo.service.SteelItemService;
@@ -30,7 +30,6 @@ import com.example.demo.service.SteelItemService;
 @RestController
 @RequestMapping("/api/steel-items")
 @Validated
-@CrossOrigin
 public class SteelItemController {
 
     private final SteelItemService service;
@@ -65,36 +64,9 @@ public class SteelItemController {
             @RequestParam(name = "minSupplyPrice", required = false) String minSupplyPrice,
             @RequestParam(name = "maxSupplyPrice", required = false) String maxSupplyPrice) {
 
-        SteelItemQuery filter = new SteelItemQuery();
-        filter.setId(id);
-        filter.setCategory(category);
-        filter.setProductName(productName);
-        filter.setModel(model);
-        filter.setBrand(brand);
-        filter.setMaterial(material);
-        filter.setOrigin(origin);
-        filter.setSpec1(spec1);
-        filter.setStandard(standard);
-        filter.setProvince(province);
-        filter.setCity(city);
-        filter.setDistrict(district);
-        filter.setSpec4(spec4);
-        filter.setCalcMode(calcMode);
-        if (visible != null && !visible.isBlank()) {
-            filter.setVisible(Boolean.parseBoolean(visible));
-        }
-        if (minPrice1 != null && !minPrice1.isBlank()) {
-            filter.setMinPrice1(new java.math.BigDecimal(minPrice1));
-        }
-        if (maxPrice1 != null && !maxPrice1.isBlank()) {
-            filter.setMaxPrice1(new java.math.BigDecimal(maxPrice1));
-        }
-        if (minSupplyPrice != null && !minSupplyPrice.isBlank()) {
-            filter.setMinSupplyPrice(new java.math.BigDecimal(minSupplyPrice));
-        }
-        if (maxSupplyPrice != null && !maxSupplyPrice.isBlank()) {
-            filter.setMaxSupplyPrice(new java.math.BigDecimal(maxSupplyPrice));
-        }
+        SteelItemQuery filter = buildQueryFromParams(id, category, productName, model, brand, material, origin,
+                spec1, standard, province, city, district, spec4, calcMode, visible,
+                minPrice1, maxPrice1, minSupplyPrice, maxSupplyPrice);
 
         return service.search(filter, page, size, sortBy, direction);
     }
@@ -123,6 +95,27 @@ public class SteelItemController {
             @RequestParam(name = "minSupplyPrice", required = false) String minSupplyPrice,
             @RequestParam(name = "maxSupplyPrice", required = false) String maxSupplyPrice) {
 
+        SteelItemQuery filter = buildQueryFromParams(id, category, productName, model, brand, material, origin,
+                spec1, standard, province, city, district, spec4, calcMode, visible,
+                minPrice1, maxPrice1, minSupplyPrice, maxSupplyPrice);
+
+        byte[] data = service.exportToExcel(filter, sortBy, direction);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+        headers.setContentDisposition(ContentDisposition.attachment().filename("steel_items.xlsx").build());
+        headers.setContentLength(data.length);
+        return new ResponseEntity<>(data, headers, HttpStatus.OK);
+    }
+
+    /**
+     * 从请求参数构建查询条件对象
+     */
+    private SteelItemQuery buildQueryFromParams(String id, String category, String productName, String model,
+                                                 String brand, String material, String origin, String spec1,
+                                                 String standard, String province, String city, String district,
+                                                 String spec4, String calcMode, String visible,
+                                                 String minPrice1, String maxPrice1,
+                                                 String minSupplyPrice, String maxSupplyPrice) {
         SteelItemQuery filter = new SteelItemQuery();
         filter.setId(id);
         filter.setCategory(category);
@@ -138,6 +131,7 @@ public class SteelItemController {
         filter.setDistrict(district);
         filter.setSpec4(spec4);
         filter.setCalcMode(calcMode);
+
         if (visible != null && !visible.isBlank()) {
             filter.setVisible(Boolean.parseBoolean(visible));
         }
@@ -154,12 +148,7 @@ public class SteelItemController {
             filter.setMaxSupplyPrice(new java.math.BigDecimal(maxSupplyPrice));
         }
 
-        byte[] data = service.exportToExcel(filter, sortBy, direction);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
-        headers.setContentDisposition(ContentDisposition.attachment().filename("steel_items.xlsx").build());
-        headers.setContentLength(data.length);
-        return new ResponseEntity<>(data, headers, HttpStatus.OK);
+        return filter;
     }
 
     @GetMapping("/{id}")
@@ -185,9 +174,9 @@ public class SteelItemController {
 
     @PostMapping(path = "/upload", consumes = {"multipart/form-data"})
     public UploadResponse uploadExcel(@RequestParam("file") MultipartFile file) {
-        if (file == null || file.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "请上传有效的 Excel 文件");
-        }
+        // 使用验证器验证文件
+        FileUploadValidator.validate(file);
+
         try {
             String filename = file.getOriginalFilename();
             boolean isCsv = filename != null && filename.toLowerCase().endsWith(".csv");

@@ -1,6 +1,9 @@
 com\example\demo\DemoApplication.class
+com\example\demo\config\ValidationConfig.class
 com\example\demo\controller\GlobalExceptionHandler.class
+com\example\demo\config\CorsConfig.class
 com\example\demo\controller\SteelItemController.class
+com\example\demo\model\FileUploadValidator.class
 com\example\demo\config\DataInitializer.class
 com\example\demo\controller\SteelItemController$UploadResponse.class
 com\example\demo\config\EmbeddedMongoConfig.class

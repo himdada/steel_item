@@ -25,11 +25,11 @@ public class DataInitializer {
                     "8-10", null, null, null, null, "吨", "普通", "百信", "百信", new BigDecimal("3000"));
             SteelItem item2 = createItem("型材", "工字钢", "12", new BigDecimal("75.78"), 6000,
                     "8-10", null, null, null, null, "吨", "普通", "百信", "百信", new BigDecimal("3300"));
-            SteelItem item3 = createItem("型材", "工字钢", "14", new BigDecimal("112-225"), 9000,
+            SteelItem item3 = createItem("型材", "工字钢", "14", new BigDecimal("112"), 9000,
                     "18-20", null, null, null, null, "吨", "普通", "百信", "百信", new BigDecimal("3280"));
-            SteelItem item4 = createItem("型材", "工字钢", "18", new BigDecimal("138-155"), 9000,
+            SteelItem item4 = createItem("型材", "工字钢", "18", new BigDecimal("138"), 9000,
                     "8-10", null, null, null, null, "吨", "普通", "百信", "百信", new BigDecimal("3280"));
-            SteelItem item5 = createItem("型材", "槽钢", "6.3", new BigDecimal("23-24"), 6000,
+            SteelItem item5 = createItem("型材", "槽钢", "6.3", new BigDecimal("23"), 6000,
                     "8-10", null, null, null, null, "吨", "普通", "百信", "百信", new BigDecimal("3340"));
 
             repository.saveAll(List.of(item1, item2, item3, item4, item5));

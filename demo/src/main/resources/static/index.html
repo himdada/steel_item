@@ -4,158 +4,872 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>钢材市场分析平台</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --bg-body: #f3f4f6;
-            --bg-card: #ffffff;
-            --text-main: #111827;
-            --text-muted: #6b7280;
-            --border: #e5e7eb;
-            --danger: #ef4444;
+            --primary: #4f46e5;
+            --primary-light: #818cf8;
+            --primary-dark: #3730a3;
+            --accent: #06b6d4;
             --success: #10b981;
-            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-sidebar: #1e1b4b;
+            --text-main: #1e293b;
+            --text-secondary: #64748b;
+            --text-light: #94a3b8;
+            --border: #e2e8f0;
+            --border-light: #f1f5f9;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+            --radius: 0.75rem;
+            --radius-lg: 1rem;
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        * { box-sizing: border-box; }
-        body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; margin: 0; background: var(--bg-body); color: var(--text-main); line-height: 1.5; }
-        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
         /* Layout */
-        .app-container { display: flex; flex-direction: column; min-height: 100vh; }
-        header { background: #fff; border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow); position: sticky; top: 0; z-index: 50; }
-        header h1 { margin: 0; font-size: 1.25rem; font-weight: 600; color: var(--primary); display: flex; align-items: center; gap: 0.5rem; }
-        header h1::before { content: ''; display: block; width: 24px; height: 24px; background: currentColor; mask: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>') no-repeat center; -webkit-mask: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>') no-repeat center; }
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
 
-        main { flex: 1; padding: 2rem; max-width: 1600px; margin: 0 auto; width: 100%; display: grid; gap: 1.5rem; }
+        /* Header */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
 
-        /* Components */
-        .card { background: var(--bg-card); border-radius: 0.5rem; box-shadow: var(--shadow); border: 1px solid var(--border); overflow: hidden; }
-        .card-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); background: #f9fafb; display: flex; justify-content: space-between; align-items: center; }
-        .card-header h3 { margin: 0; font-size: 1rem; font-weight: 600; color: #374151; }
-        .card-body { padding: 1.5rem; }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .logo-text h1 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-text span {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-icon.blue { background: #dbeafe; color: #2563eb; }
+        .stat-icon.green { background: #d1fae5; color: #059669; }
+        .stat-icon.purple { background: #e9d5ff; color: #7c3aed; }
+        .stat-icon.orange { background: #ffedd5; color: #ea580c; }
+
+        .stat-content h3 {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-main);
+            line-height: 1;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border-light);
+            background: linear-gradient(to right, #fafbfc, #f8fafc);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h3 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-header h3::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(to bottom, var(--primary), var(--accent));
+            border-radius: 2px;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
 
         /* Forms & Inputs */
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
-        .form-group { display: flex; flex-direction: column; gap: 0.375rem; }
-        .form-group label { font-size: 0.875rem; font-weight: 500; color: #374151; }
-        .form-control { padding: 0.5rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.375rem; font-size: 0.875rem; transition: border-color 0.15s; width: 100%; }
-        .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
-        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        .form-control {
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            transition: var(--transition);
+            width: 100%;
+            background: var(--bg-card);
+            color: var(--text-main);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        }
+
+        .form-control::placeholder {
+            color: var(--text-light);
+        }
+
         /* Buttons */
-        .btn { display: inline-flex; align-items: center; justify-content: center; padding: 0.5rem 1rem; border-radius: 0.375rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: all 0.15s; border: 1px solid transparent; gap: 0.5rem; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-hover); }
-        .btn-secondary { background: white; border-color: #d1d5db; color: #374151; }
-        .btn-secondary:hover { background: #f3f4f6; }
-        .btn-danger { background: #fee2e2; color: #991b1b; }
-        .btn-danger:hover { background: #fecaca; }
-        .btn-sm { padding: 0.25rem 0.5rem; font-size: 0.75rem; }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 2px solid transparent;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
 
-   
-        .table-container { overflow-x: auto; border: 1px solid var(--border); border-radius: 0.375rem; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.875rem; white-space: nowrap; }
-        th { background: #f9fafb; font-weight: 600; text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; position: sticky; top: 0; z-index: 10; }
-        th:hover { background: #f3f4f6; }
-        td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); color: #4b5563; }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px -2px rgba(79, 70, 229, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            border-color: var(--border);
+            color: var(--text-main);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border-light);
+            border-color: var(--text-light);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            color: #991b1b;
+            border-color: #fca5a5;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #fecaca, #fca5a5);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px -2px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.8125rem;
+        }
+
+        .btn-icon {
+            padding: 0.5rem;
+            border-radius: var(--radius);
+        }
+
+        /* File Upload */
+        .file-upload-wrapper {
+            position: relative;
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            background: var(--bg-card);
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .file-input-label:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: #f0f0ff;
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+
+        thead {
+            background: linear-gradient(to right, #f8fafc, #f1f5f9);
+        }
+
+        th {
+            font-weight: 600;
+            text-align: left;
+            padding: 1rem 1.25rem;
+            border-bottom: 2px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 0.8125rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+            transition: var(--transition);
+        }
+
+        th:hover {
+            background: #e2e8f0;
+            color: var(--primary);
+        }
+
+        th.sorted-asc::after { content: ' ↑'; color: var(--primary); }
+        th.sorted-desc::after { content: ' ↓'; color: var(--primary); }
+
+        td {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border-light);
+            color: var(--text-main);
+            vertical-align: middle;
+        }
+
+        tr { transition: var(--transition); }
+        tr:hover td { background: #f8fafc; }
         tr:last-child td { border-bottom: none; }
-        tr:hover td { background: #f9fafb; }
-        
-   
-        .flex { display: flex; }
-        .items-center { align-items: center; }
-        .justify-between { justify-content: space-between; }
-        .gap-2 { gap: 0.5rem; }
-        .gap-4 { gap: 1rem; }
-        .mt-4 { margin-top: 1rem; }
-        .text-sm { font-size: 0.875rem; }
-        .text-muted { color: var(--text-muted); }
-        .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
-        
-    
-        .badge { display: inline-flex; align-items: center; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
-        .badge-blue { background: #dbeafe; color: #1e40af; }
-        .badge-green { background: #d1fae5; color: #065f46; }
-        .badge-yellow { background: #fef3c7; color: #92400e; }
 
-  
-        .dashboard-grid { display: grid; grid-template-columns: 1fr 350px; gap: 1.5rem; align-items: start; }
-        @media (max-width: 1024px) { .dashboard-grid { grid-template-columns: 1fr; } }
+        /* Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.375rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.025em;
+        }
 
-   
-        .toast { position: fixed; bottom: 2rem; right: 2rem; background: #333; color: white; padding: 0.75rem 1.5rem; border-radius: 0.375rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); transform: translateY(150%); transition: transform 0.3s ease; z-index: 100; }
+        .badge-blue { background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #1e40af; }
+        .badge-green { background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #065f46; }
+        .badge-purple { background: linear-gradient(135deg, #e9d5ff, #d8b4fe); color: #5b21b6; }
+        .badge-orange { background: linear-gradient(135deg, #ffedd5, #fed7aa); color: #9a3412; }
+
+        /* Price styling */
+        .price {
+            font-family: 'SF Mono', 'Consolas', monospace;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .price-main { color: #d97706; }
+        .price-supply { color: #059669; }
+        .price-diff { color: #dc2626; }
+
+        /* Actions */
+        .action-btns {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        @media (max-width: 1280px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--text-main);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            transform: translateY(150%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            max-width: 400px;
+        }
+
         .toast.show { transform: translateY(0); }
-        .toast.error { background: var(--danger); }
-        .toast.success { background: var(--success); }
+        .toast.error {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+        }
+        .toast.success {
+            background: linear-gradient(135deg, var(--success), #059669);
+        }
 
-        .file-upload-wrapper { position: relative; display: flex; gap: 0.5rem; align-items: center; }
-        input[type="file"] { font-size: 0.875rem; color: var(--text-muted); }
-        input[type="file"]::file-selector-button { margin-right: 1rem; padding: 0.5rem 1rem; border-radius: 0.375rem; border: 1px solid var(--border); background: white; cursor: pointer; font-weight: 500; transition: all 0.15s; }
-        input[type="file"]::file-selector-button:hover { background: #f9fafb; }
+        .toast-icon {
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
 
+        /* Loading State */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            color: var(--text-light);
+            gap: 0.75rem;
+        }
+
+        .loading::before {
+            content: '';
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Empty State */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            color: var(--text-light);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border-light);
+            background: linear-gradient(to right, #fafbfc, #f8fafc);
+        }
+
+        .pagination-info {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .pagination-btns {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Form Section */
+        .form-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        /* Collapsible */
+        details {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+
+        details summary {
+            padding: 1rem 1.25rem;
+            background: var(--border-light);
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            transition: var(--transition);
+        }
+
+        details summary:hover {
+            background: var(--border);
+            color: var(--text-main);
+        }
+
+        details[open] summary {
+            border-bottom: 1px solid var(--border);
+        }
+
+        details .details-content {
+            padding: 1.25rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .header-actions {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+
+            main {
+                padding: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        .card { animation: fadeIn 0.4s ease forwards; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--border-light);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--text-light);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
     </style>
 </head>
 <body>
 
 <div class="app-container">
     <header>
-        <h1>钢材市场分析平台</h1>
-        <div class="flex items-center gap-4">
+        <div class="logo">
+            <div class="logo-icon">⚡</div>
+            <div class="logo-text">
+                <h1>钢材市场分析平台</h1>
+                <span>Steel Market Analytics</span>
+            </div>
+        </div>
+        <div class="header-actions">
             <div class="file-upload-wrapper">
-                <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" />
-                <button class="btn btn-primary btn-sm" id="uploadBtn">
+                <div class="file-input-wrapper">
+                    <span class="file-input-label">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                        选择文件
+                    </span>
+                    <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" />
+                </div>
+                <button class="btn btn-primary" id="uploadBtn">
                     <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                    导入 Excel
+                    导入数据
                 </button>
             </div>
         </div>
     </header>
 
     <main>
+        <!-- Stats Cards -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-content">
+                        <h3>数据总量</h3>
+                        <div class="stat-value" id="totalCount">--</div>
+                    </div>
+                    <div class="stat-icon blue">📊</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-content">
+                        <h3>平均价格</h3>
+                        <div class="stat-value" id="avgPrice">--</div>
+                    </div>
+                    <div class="stat-icon green">💰</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-content">
+                        <h3>品类数量</h3>
+                        <div class="stat-value" id="categoryCount">--</div>
+                    </div>
+                    <div class="stat-icon purple">📦</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-content">
+                        <h3>品牌数量</h3>
+                        <div class="stat-value" id="brandCount">--</div>
+                    </div>
+                    <div class="stat-icon orange">🏭</div>
+                </div>
+            </div>
+        </div>
 
+        <!-- Search Filter -->
         <section class="card">
             <div class="card-header">
                 <h3>筛选查询</h3>
-                <div class="flex gap-2">
-                    <button class="btn btn-secondary btn-sm" id="exportBtn">导出 Excel</button>
-                    <button class="btn btn-secondary btn-sm" id="resetBtn">重置条件</button>
-                    <button class="btn btn-primary btn-sm" id="searchBtn">查询</button>
+                <div style="display: flex; gap: 0.75rem;">
+                    <button class="btn btn-secondary btn-sm" id="resetBtn">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        重置
+                    </button>
+                    <button class="btn btn-success btn-sm" id="exportBtn">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        导出
+                    </button>
+                    <button class="btn btn-primary btn-sm" id="searchBtn">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        查询
+                    </button>
                 </div>
             </div>
             <div class="card-body">
                 <div class="form-grid">
-                    <div class="form-group"><label>ID</label><input id="id" class="form-control" placeholder="如: 123"></div>
-                    <div class="form-group"><label>类型</label><input id="category" class="form-control" placeholder="如: 管材"></div>
-                    <div class="form-group"><label>品名</label><input id="productName" class="form-control" placeholder="如: 方管"></div>
-                    <div class="form-group"><label>型号</label><input id="model" class="form-control" placeholder="如: 40*40"></div>
-                    <div class="form-group"><label>规格1</label><input id="spec1" class="form-control" placeholder="如: 1.9"></div>
-                    <div class="form-group"><label>规格4</label><input id="spec4" class="form-control" placeholder="如: 100"></div>
-                    <div class="form-group"><label>品牌/厂家</label><input id="brand" class="form-control" placeholder="如: 天津恒利"></div>
-                    <div class="form-group"><label>材质</label><input id="material" class="form-control" placeholder="如: Q235B"></div>
-                    <div class="form-group"><label>执行标准</label><input id="standard" class="form-control" placeholder="如: GB/T 6728-2017"></div>
-                    <div class="form-group"><label>提货地/省</label><input id="province" class="form-control" placeholder="如: 天津"></div>
-                    <div class="form-group"><label>提货地/市</label><input id="city" class="form-control" placeholder="如: 天津"></div>
-                    <div class="form-group"><label>提货地/区</label><input id="district" class="form-control" placeholder="如: 西青"></div>
-                    <div class="form-group"><label>过磅/理计</label><input id="calcMode" class="form-control" placeholder="如: 过磅"></div>
-                    <div class="form-group"><label>价格1 (Min)</label><input id="minPrice1" type="number" class="form-control"></div>
-                    <div class="form-group"><label>价格1 (Max)</label><input id="maxPrice1" type="number" class="form-control"></div>
-                    <div class="form-group"><label>供货价 (Min)</label><input id="minSupplyPrice" type="number" class="form-control"></div>
-                    <div class="form-group"><label>供货价 (Max)</label><input id="maxSupplyPrice" type="number" class="form-control"></div>
-                    <div class="form-group"><label>是否显示</label><select id="visible" class="form-control"><option value="">全部</option><option value="true">显示</option><option value="false">隐藏</option></select></div>
+                    <div class="form-group">
+                        <label>ID</label>
+                        <input id="id" class="form-control" placeholder="输入 ID">
+                    </div>
+                    <div class="form-group">
+                        <label>类型</label>
+                        <input id="category" class="form-control" placeholder="如: 型材">
+                    </div>
+                    <div class="form-group">
+                        <label>品名</label>
+                        <input id="productName" class="form-control" placeholder="如: 工字钢">
+                    </div>
+                    <div class="form-group">
+                        <label>型号</label>
+                        <input id="model" class="form-control" placeholder="如: 10">
+                    </div>
+                    <div class="form-group">
+                        <label>规格1</label>
+                        <input id="spec1" class="form-control" placeholder="如: 8-10">
+                    </div>
+                    <div class="form-group">
+                        <label>规格4</label>
+                        <input id="spec4" class="form-control" placeholder="输入规格4">
+                    </div>
+                    <div class="form-group">
+                        <label>品牌/厂家</label>
+                        <input id="brand" class="form-control" placeholder="如: 百信">
+                    </div>
+                    <div class="form-group">
+                        <label>材质</label>
+                        <input id="material" class="form-control" placeholder="如: 普通">
+                    </div>
+                    <div class="form-group">
+                        <label>执行标准</label>
+                        <input id="standard" class="form-control" placeholder="如: GB/T 6728-2017">
+                    </div>
+                    <div class="form-group">
+                        <label>提货地/省</label>
+                        <input id="province" class="form-control" placeholder="如: 天津">
+                    </div>
+                    <div class="form-group">
+                        <label>提货地/市</label>
+                        <input id="city" class="form-control" placeholder="如: 天津">
+                    </div>
+                    <div class="form-group">
+                        <label>提货地/区</label>
+                        <input id="district" class="form-control" placeholder="如: 天津">
+                    </div>
+                    <div class="form-group">
+                        <label>过磅/理计</label>
+                        <input id="calcMode" class="form-control" placeholder="如: 理计">
+                    </div>
+                    <div class="form-group">
+                        <label>价格范围</label>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input id="minPrice1" type="number" class="form-control" placeholder="最低" style="width: 50%;">
+                            <input id="maxPrice1" type="number" class="form-control" placeholder="最高" style="width: 50%;">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>供货价范围</label>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input id="minSupplyPrice" type="number" class="form-control" placeholder="最低" style="width: 50%;">
+                            <input id="maxSupplyPrice" type="number" class="form-control" placeholder="最高" style="width: 50%;">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>显示状态</label>
+                        <select id="visible" class="form-control">
+                            <option value="">全部</option>
+                            <option value="true">显示</option>
+                            <option value="false">隐藏</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </section>
 
+        <!-- Data Table & Form -->
         <div class="dashboard-grid">
-
-            <section class="card" style="min-width: 0;"> 
+            <!-- Table Section -->
+            <section class="card">
                 <div class="card-header">
                     <h3>数据列表</h3>
-                    <div class="flex items-center gap-2">
-                        <select id="size" class="form-control" style="width: auto; padding-right: 2rem;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <select id="size" class="form-control" style="width: auto; padding: 0.5rem 2rem 0.5rem 1rem;">
                             <option value="10">10 条/页</option>
                             <option value="20">20 条/页</option>
                             <option value="50">50 条/页</option>
+                            <option value="100">100 条/页</option>
                         </select>
                     </div>
                 </div>
@@ -163,111 +877,228 @@
                     <table id="dataTable">
                         <thead>
                         <tr>
-                            <th data-sort="id">id</th>
                             <th data-sort="category">类型</th>
                             <th data-sort="productName">品名</th>
                             <th data-sort="model">型号</th>
-                            <th data-sort="spec1">规格1</th>
-                            <th data-sort="spec2">规格2</th>
-                            <th data-sort="spec3">规格3</th>
-                            <th data-sort="spec4">规格4</th>
-                            <th data-sort="spec5">规格5</th>
+                            <th data-sort="spec1">规格</th>
                             <th data-sort="unit">单位</th>
                             <th data-sort="material">材质</th>
-                            <th data-sort="standard">执行标准</th>
-                            <th data-sort="brand">品牌/厂家</th>
-                            <th data-sort="province">提货地/省</th>
-                            <th data-sort="city">提货地/市</th>
-                            <th data-sort="district">提货地/区</th>
+                            <th data-sort="brand">品牌</th>
+                            <th data-sort="province">地区</th>
                             <th data-sort="price1">默认价</th>
-                            <th data-sort="price2">二等价</th>
-                            <th data-sort="price3">三等价</th>
-                            <th data-sort="price4">四等价</th>
-                            <th data-sort="price5">五等价</th>
-                            <th data-sort="calcMode">过磅/理计</th>
-                            <th data-sort="remark">备注</th>
-                            <th data-sort="inventory">库存</th>
                             <th data-sort="supplyPrice">供货价</th>
                             <th data-sort="diffPrice">差价</th>
-                            <th data-sort="visible">是否显示</th>
-                            <th data-sort="contact">联系方式</th>
+                            <th data-sort="visible">状态</th>
                             <th data-sort="updatedAt">更新时间</th>
-                            <th style="text-align: right">操作</th>
+                            <th style="text-align: right;">操作</th>
                         </tr>
                         </thead>
                         <tbody></tbody>
                     </table>
                 </div>
-                <div class="card-body flex justify-between items-center" style="border-top: 1px solid var(--border); padding: 0.75rem 1.5rem;">
-                    <span id="pageInfo" class="text-sm text-muted">加载中...</span>
-                    <div class="flex gap-2">
-                        <button class="btn btn-secondary btn-sm" id="prevBtn">上一页</button>
-                        <button class="btn btn-secondary btn-sm" id="nextBtn">下一页</button>
+                <div class="pagination">
+                    <span id="pageInfo" class="pagination-info">加载中...</span>
+                    <div class="pagination-btns">
+                        <button class="btn btn-secondary btn-sm" id="prevBtn">
+                            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                            上一页
+                        </button>
+                        <button class="btn btn-secondary btn-sm" id="nextBtn">
+                            下一页
+                            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </button>
                     </div>
                 </div>
             </section>
 
-          
+            <!-- Edit Form Section -->
             <section class="card form-card">
                 <div class="card-header">
                     <h3>新增 / 编辑</h3>
-                    <button class="btn btn-secondary btn-sm" id="cancelEdit">清空</button>
+                    <button class="btn btn-secondary btn-sm" id="cancelEdit">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        清空
+                    </button>
                 </div>
                 <div class="card-body">
-                    <form id="editForm" class="flex" style="flex-direction: column; gap: 1rem;">
+                    <form id="editForm">
                         <input type="hidden" id="itemId">
-                        <div class="form-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
-                            <div class="form-group"><label>类型</label><input id="f_category" class="form-control" required></div>
-                            <div class="form-group"><label>品名</label><input id="f_productName" class="form-control" required></div>
-                            <div class="form-group"><label>型号</label><input id="f_model" class="form-control" required></div>
+
+                        <div class="form-section">
+                            <div class="form-section-title">基本信息</div>
+                            <div class="form-grid" style="grid-template-columns: repeat(3, 1fr);">
+                                <div class="form-group">
+                                    <label>类型 *</label>
+                                    <input id="f_category" class="form-control" required placeholder="如: 型材">
+                                </div>
+                                <div class="form-group">
+                                    <label>品名 *</label>
+                                    <input id="f_productName" class="form-control" required placeholder="如: 工字钢">
+                                </div>
+                                <div class="form-group">
+                                    <label>型号 *</label>
+                                    <input id="f_model" class="form-control" required placeholder="如: 10">
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-grid" style="grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));">
-                            <div class="form-group"><label>规格1</label><input id="f_spec1" class="form-control"></div>
-                            <div class="form-group"><label>规格2</label><input id="f_spec2" class="form-control"></div>
-                            <div class="form-group"><label>规格3</label><input id="f_spec3" class="form-control"></div>
-                            <div class="form-group"><label>规格4</label><input id="f_spec4" class="form-control"></div>
-                            <div class="form-group"><label>规格5</label><input id="f_spec5" class="form-control"></div>
+
+                        <div class="form-section">
+                            <div class="form-section-title">规格参数</div>
+                            <div class="form-grid" style="grid-template-columns: repeat(5, 1fr);">
+                                <div class="form-group">
+                                    <label>规格1</label>
+                                    <input id="f_spec1" class="form-control" placeholder="规格1">
+                                </div>
+                                <div class="form-group">
+                                    <label>规格2</label>
+                                    <input id="f_spec2" class="form-control" placeholder="规格2">
+                                </div>
+                                <div class="form-group">
+                                    <label>规格3</label>
+                                    <input id="f_spec3" class="form-control" placeholder="规格3">
+                                </div>
+                                <div class="form-group">
+                                    <label>规格4</label>
+                                    <input id="f_spec4" class="form-control" placeholder="规格4">
+                                </div>
+                                <div class="form-group">
+                                    <label>规格5</label>
+                                    <input id="f_spec5" class="form-control" placeholder="规格5">
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-grid" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));">
-                            <div class="form-group"><label>单位</label><input id="f_unit" class="form-control"></div>
-                            <div class="form-group"><label>材质</label><input id="f_material" class="form-control"></div>
-                            <div class="form-group"><label>执行标准</label><input id="f_standard" class="form-control"></div>
-                            <div class="form-group"><label>品牌/厂家</label><input id="f_brand" class="form-control"></div>
+
+                        <div class="form-section">
+                            <div class="form-section-title">产品属性</div>
+                            <div class="form-grid" style="grid-template-columns: repeat(4, 1fr);">
+                                <div class="form-group">
+                                    <label>单位</label>
+                                    <input id="f_unit" class="form-control" placeholder="如: 吨">
+                                </div>
+                                <div class="form-group">
+                                    <label>材质</label>
+                                    <input id="f_material" class="form-control" placeholder="如: 普通">
+                                </div>
+                                <div class="form-group">
+                                    <label>执行标准</label>
+                                    <input id="f_standard" class="form-control" placeholder="如: GB/T 6728-2017">
+                                </div>
+                                <div class="form-group">
+                                    <label>品牌/厂家</label>
+                                    <input id="f_brand" class="form-control" placeholder="如: 百信">
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-grid" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));">
-                            <div class="form-group"><label>提货地/省</label><input id="f_province" class="form-control"></div>
-                            <div class="form-group"><label>提货地/市</label><input id="f_city" class="form-control"></div>
-                            <div class="form-group"><label>提货地/区</label><input id="f_district" class="form-control"></div>
+
+                        <div class="form-section">
+                            <div class="form-section-title">提货地点</div>
+                            <div class="form-grid" style="grid-template-columns: repeat(3, 1fr);">
+                                <div class="form-group">
+                                    <label>省</label>
+                                    <input id="f_province" class="form-control" placeholder="如: 天津">
+                                </div>
+                                <div class="form-group">
+                                    <label>市</label>
+                                    <input id="f_city" class="form-control" placeholder="如: 天津">
+                                </div>
+                                <div class="form-group">
+                                    <label>区</label>
+                                    <input id="f_district" class="form-control" placeholder="如: 天津">
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-grid" style="grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));">
-                            <div class="form-group"><label>默认价格</label><input id="f_price1" type="number" step="0.01" class="form-control"></div>
-                            <div class="form-group"><label>二等价格</label><input id="f_price2" type="number" step="0.01" class="form-control"></div>
-                            <div class="form-group"><label>三等价格</label><input id="f_price3" type="number" step="0.01" class="form-control"></div>
-                            <div class="form-group"><label>四等价格</label><input id="f_price4" type="number" step="0.01" class="form-control"></div>
-                            <div class="form-group"><label>五等价格</label><input id="f_price5" type="number" step="0.01" class="form-control"></div>
+
+                        <div class="form-section">
+                            <div class="form-section-title">价格信息</div>
+                            <div class="form-grid" style="grid-template-columns: repeat(5, 1fr);">
+                                <div class="form-group">
+                                    <label>默认价格</label>
+                                    <input id="f_price1" type="number" step="0.01" class="form-control" placeholder="0.00">
+                                </div>
+                                <div class="form-group">
+                                    <label>二等价格</label>
+                                    <input id="f_price2" type="number" step="0.01" class="form-control" placeholder="0.00">
+                                </div>
+                                <div class="form-group">
+                                    <label>三等价格</label>
+                                    <input id="f_price3" type="number" step="0.01" class="form-control" placeholder="0.00">
+                                </div>
+                                <div class="form-group">
+                                    <label>四等价格</label>
+                                    <input id="f_price4" type="number" step="0.01" class="form-control" placeholder="0.00">
+                                </div>
+                                <div class="form-group">
+                                    <label>五等价格</label>
+                                    <input id="f_price5" type="number" step="0.01" class="form-control" placeholder="0.00">
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-grid" style="grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));">
-                            <div class="form-group"><label>供货价</label><input id="f_supplyPrice" type="number" step="0.01" class="form-control"></div>
-                            <div class="form-group"><label>差价</label><input id="f_diffPrice" type="number" step="0.01" class="form-control"></div>
-                            <div class="form-group"><label>库存</label><input id="f_inventory" type="number" class="form-control"></div>
-                            <div class="form-group"><label>过磅/理计</label><input id="f_calcMode" class="form-control" placeholder="如: 过磅"></div>
-                            <div class="form-group"><label>是否显示</label><select id="f_visible" class="form-control"><option value="">默认</option><option value="true">显示</option><option value="false">隐藏</option></select></div>
+
+                        <div class="form-section">
+                            <div class="form-section-title">其他信息</div>
+                            <div class="form-grid" style="grid-template-columns: repeat(3, 1fr);">
+                                <div class="form-group">
+                                    <label>供货价</label>
+                                    <input id="f_supplyPrice" type="number" step="0.01" class="form-control" placeholder="0.00">
+                                </div>
+                                <div class="form-group">
+                                    <label>差价</label>
+                                    <input id="f_diffPrice" type="number" step="0.01" class="form-control" placeholder="0.00">
+                                </div>
+                                <div class="form-group">
+                                    <label>库存</label>
+                                    <input id="f_inventory" type="number" class="form-control" placeholder="0">
+                                </div>
+                                <div class="form-group">
+                                    <label>过磅/理计</label>
+                                    <input id="f_calcMode" class="form-control" placeholder="如: 理计">
+                                </div>
+                                <div class="form-group">
+                                    <label>是否显示</label>
+                                    <select id="f_visible" class="form-control">
+                                        <option value="">默认</option>
+                                        <option value="true">显示</option>
+                                        <option value="false">隐藏</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>联系人</label>
+                                    <input id="f_contact" class="form-control" placeholder="供应商/联系方式">
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-top: 1rem;">
+                                <label>备注</label>
+                                <textarea id="f_remark" class="form-control" rows="2" placeholder="输入备注信息..." style="resize: vertical;"></textarea>
+                            </div>
                         </div>
-                        <div class="form-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
-                            <div class="form-group"><label>联系人/供应商</label><input id="f_contact" class="form-control"></div>
-                            <div class="form-group" style="grid-column: 1 / -1;"><label>备注</label><textarea id="f_remark" class="form-control" rows="2" style="resize: vertical;"></textarea></div>
-                        </div>
-                        <!-- Collapsible Details -->
-                        <details style="font-size: 0.875rem; color: var(--text-muted); cursor: pointer;">
-                            <summary>更多详细信息...</summary>
-                            <div class="form-grid mt-4" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));">
-                                <div class="form-group"><label>支重</label><input id="f_weightPerMeter" type="number" step="0.001" class="form-control"></div>
-                                <div class="form-group"><label>长度</label><input id="f_lengthMm" type="number" class="form-control"></div>
-                                <div class="form-group"><label>产地</label><input id="f_origin" class="form-control"></div>
+
+                        <details>
+                            <summary>
+                                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: inline; vertical-align: middle; margin-right: 0.5rem;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                                更多详细信息
+                            </summary>
+                            <div class="details-content">
+                                <div class="form-grid" style="grid-template-columns: repeat(3, 1fr);">
+                                    <div class="form-group">
+                                        <label>支重</label>
+                                        <input id="f_weightPerMeter" type="number" step="0.001" class="form-control" placeholder="0.000">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>长度(mm)</label>
+                                        <input id="f_lengthMm" type="number" class="form-control" placeholder="0">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>产地</label>
+                                        <input id="f_origin" class="form-control" placeholder="如: 百信">
+                                    </div>
+                                </div>
                             </div>
                         </details>
 
-                        <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem;">保存提交</button>
+                        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem; padding: 1rem;">
+                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            保存提交
+                        </button>
                     </form>
                 </div>
             </section>
@@ -275,7 +1106,10 @@
     </main>
 </div>
 
-<div id="toast" class="toast">操作成功</div>
+<div id="toast" class="toast">
+    <span class="toast-icon"></span>
+    <span class="toast-message"></span>
+</div>
 
 <script>
     const apiBase = '/api/steel-items';
@@ -284,10 +1118,46 @@
     // --- UI Helpers ---
     const showToast = (msg, type = 'success') => {
         const t = document.getElementById('toast');
-        t.textContent = msg;
+        const icon = t.querySelector('.toast-icon');
+        const message = t.querySelector('.toast-message');
+
+        icon.textContent = type === 'success' ? '✓' : '✕';
+        message.textContent = msg;
         t.className = `toast show ${type}`;
         setTimeout(() => t.className = 'toast', 3000);
     };
+
+    // --- Stats Loading ---
+    async function loadStats() {
+        try {
+            const res = await fetch(`${apiBase}?page=0&size=1`);
+            const data = await res.json();
+
+            document.getElementById('totalCount').textContent = data.totalElements || 0;
+
+            // Load all data for stats
+            const allRes = await fetch(`${apiBase}?page=0&size=1000`);
+            const allData = await allRes.json();
+            const items = allData.content || [];
+
+            if (items.length > 0) {
+                // Calculate average price
+                const prices = items.filter(i => i.price1).map(i => i.price1);
+                const avgPrice = prices.length > 0 ? (prices.reduce((a, b) => a + b, 0) / prices.length).toFixed(0) : '--';
+                document.getElementById('avgPrice').textContent = avgPrice !== '--' ? `¥${avgPrice}` : '--';
+
+                // Count categories
+                const categories = new Set(items.map(i => i.category).filter(Boolean));
+                document.getElementById('categoryCount').textContent = categories.size;
+
+                // Count brands
+                const brands = new Set(items.map(i => i.brand).filter(Boolean));
+                document.getElementById('brandCount').textContent = brands.size;
+            }
+        } catch (e) {
+            console.error('Failed to load stats:', e);
+        }
+    }
 
     // --- Data Loading ---
     const tbody = document.querySelector('#dataTable tbody');
@@ -301,74 +1171,79 @@
             direction: state.direction,
             ...collectFilters()
         });
-        
+
         try {
-            tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding: 2rem;">加载中...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="14"><div class="loading">正在加载数据...</div></td></tr>';
             const res = await fetch(`${apiBase}?${params.toString()}`);
             if (!res.ok) throw new Error('加载失败');
             const pageData = await res.json();
-            
+
             state.totalPages = pageData.totalPages;
             renderRows(pageData.content);
             pageInfo.textContent = `第 ${state.page + 1} / ${state.totalPages || 1} 页 (共 ${pageData.totalElements} 条)`;
+
+            // Update button states
+            document.getElementById('prevBtn').disabled = state.page === 0;
+            document.getElementById('nextBtn').disabled = state.page + 1 >= state.totalPages;
         } catch (e) {
-            tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; color:red;">${e.message}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="14"><div class="empty-state"><div class="empty-state-icon">⚠️</div><p>${e.message}</p></div></td></tr>`;
         }
     }
 
     function renderRows(items) {
         tbody.innerHTML = '';
         if (!items || items.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding: 2rem; color: #9ca3af;">暂无数据</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="14"><div class="empty-state"><div class="empty-state-icon">📭</div><p>暂无数据</p><small style="color: var(--text-light);">尝试调整筛选条件或导入新数据</small></div></td></tr>';
             return;
         }
-        items.forEach(item => {
+
+        items.forEach((item, index) => {
             const tr = document.createElement('tr');
+            tr.className = 'fade-in';
+            tr.style.animationDelay = `${index * 0.05}s`;
+
+            const region = [item.province, item.city, item.district].filter(Boolean).join(' / ') || '-';
+            const visibleBadge = item.visible ?
+                '<span class="badge badge-green">显示</span>' :
+                '<span class="badge badge-orange">隐藏</span>';
+
             tr.innerHTML = `
-                <td class="font-mono">${item.id || '-'}</td>
                 <td><span class="badge badge-blue">${item.category || '-'}</span></td>
-                <td style="font-weight: 500;">${item.productName || '-'}</td>
+                <td style="font-weight: 600;">${item.productName || '-'}</td>
                 <td>${item.model || '-'}</td>
                 <td>${item.spec1 || '-'}</td>
-                <td>${item.spec2 || '-'}</td>
-                <td>${item.spec3 || '-'}</td>
-                <td>${item.spec4 || '-'}</td>
-                <td>${item.spec5 || '-'}</td>
                 <td>${item.unit || '-'}</td>
                 <td>${item.material || '-'}</td>
-                <td>${item.standard || '-'}</td>
                 <td>${item.brand || '-'}</td>
-                <td>${item.province || '-'}</td>
-                <td>${item.city || '-'}</td>
-                <td>${item.district || '-'}</td>
-                <td class="font-mono" style="color: #d97706;">${item.price1 ?? '-'}</td>
-                <td class="font-mono" style="color: #d97706;">${item.price2 ?? '-'}</td>
-                <td class="font-mono" style="color: #d97706;">${item.price3 ?? '-'}</td>
-                <td class="font-mono" style="color: #d97706;">${item.price4 ?? '-'}</td>
-                <td class="font-mono" style="color: #d97706;">${item.price5 ?? '-'}</td>
-                <td>${item.calcMode || '-'}</td>
-                <td>${item.remark || '-'}</td>
-                <td>${item.inventory ?? '-'}</td>
-                <td class="font-mono" style="color: #059669;">${item.supplyPrice ?? '-'}</td>
-                <td class="font-mono" style="color: #ef4444;">${item.diffPrice ?? '-'}</td>
-                <td>${item.visible === null || item.visible === undefined ? '-' : (item.visible ? '是' : '否')}</td>
-                <td>${item.contact || '-'}</td>
-                <td class="text-sm text-muted">${item.updatedAt ? new Date(item.updatedAt).toLocaleDateString() : '-'}</td>
-                <td style="text-align: right;">
-                    <button class="btn btn-secondary btn-sm" data-action="edit">编辑</button>
-                    <button class="btn btn-danger btn-sm" data-action="delete" style="margin-left: 4px;">×</button>
+                <td style="font-size: 0.8125rem; color: var(--text-secondary);">${region}</td>
+                <td class="price price-main">${item.price1 != null ? '¥' + item.price1 : '-'}</td>
+                <td class="price price-supply">${item.supplyPrice != null ? '¥' + item.supplyPrice : '-'}</td>
+                <td class="price price-diff">${item.diffPrice != null ? '¥' + item.diffPrice : '-'}</td>
+                <td>${visibleBadge}</td>
+                <td style="font-size: 0.8125rem; color: var(--text-secondary);">${item.updatedAt ? new Date(item.updatedAt).toLocaleDateString('zh-CN') : '-'}</td>
+                <td>
+                    <div class="action-btns">
+                        <button class="btn btn-secondary btn-sm" data-action="edit" title="编辑">
+                            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                        </button>
+                        <button class="btn btn-danger btn-sm" data-action="delete" title="删除">
+                            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    </div>
                 </td>`;
-            
+
             tr.querySelector('[data-action="edit"]').addEventListener('click', () => {
                 fillForm(item);
-                document.querySelector('.form-card').scrollIntoView({ behavior: 'smooth' });
+                document.querySelector('.form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
             });
+
             tr.querySelector('[data-action="delete"]').addEventListener('click', async () => {
-                if (confirm('确认删除该条目？')) {
+                if (confirm('确定要删除这条数据吗？此操作不可恢复。')) {
                     try {
                         await fetch(`${apiBase}/${item.id}`, { method: 'DELETE' });
                         showToast('删除成功');
                         loadData();
+                        loadStats();
                     } catch (e) {
                         showToast('删除失败', 'error');
                     }
@@ -481,21 +1356,26 @@
     }
 
     // --- Event Listeners ---
-    document.getElementById('searchBtn').addEventListener('click', () => { 
-        state.page = 0; 
-        state.sortBy = 'price1'; 
-        state.direction = 'ASC'; 
-        loadData(); 
+    document.getElementById('searchBtn').addEventListener('click', () => {
+        state.page = 0;
+        state.sortBy = 'price1';
+        state.direction = 'ASC';
+        loadData();
     });
+
     document.getElementById('resetBtn').addEventListener('click', () => {
         document.querySelectorAll('.card-body input').forEach(i => i.value = '');
         document.querySelectorAll('.card-body select').forEach(s => s.value = '');
-        state.page = 0; loadData();
+        state.page = 0;
+        state.sortBy = 'updatedAt';
+        state.direction = 'DESC';
+        loadData();
     });
+
     document.getElementById('exportBtn').addEventListener('click', async () => {
         const btn = document.getElementById('exportBtn');
-        const original = btn.textContent;
-        btn.textContent = '导出中...';
+        const original = btn.innerHTML;
+        btn.innerHTML = '<svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> 导出中...';
         btn.disabled = true;
         const params = new URLSearchParams({
             sortBy: state.sortBy,
@@ -516,23 +1396,44 @@
         } catch (e) {
             showToast(e.message || '导出失败', 'error');
         } finally {
-            btn.textContent = original;
+            btn.innerHTML = original;
             btn.disabled = false;
         }
     });
-    document.getElementById('prevBtn').addEventListener('click', () => { if (state.page > 0) { state.page--; loadData(); } });
-    document.getElementById('nextBtn').addEventListener('click', () => { if (state.page + 1 < state.totalPages) { state.page++; loadData(); } });
-    document.getElementById('size').addEventListener('change', (e) => { state.size = Number(e.target.value); state.page = 0; loadData(); });
-    
+
+    document.getElementById('prevBtn').addEventListener('click', () => {
+        if (state.page > 0) {
+            state.page--;
+            loadData();
+        }
+    });
+
+    document.getElementById('nextBtn').addEventListener('click', () => {
+        if (state.page + 1 < state.totalPages) {
+            state.page++;
+            loadData();
+        }
+    });
+
+    document.getElementById('size').addEventListener('change', (e) => {
+        state.size = Number(e.target.value);
+        state.page = 0;
+        loadData();
+    });
+
     document.querySelectorAll('th[data-sort]').forEach(th => {
         th.addEventListener('click', () => {
             const field = th.dataset.sort;
             state.direction = state.sortBy === field && state.direction === 'DESC' ? 'ASC' : 'DESC';
             state.sortBy = field;
             state.page = 0;
-            // Update sort icon visual (simplified)
-            document.querySelectorAll('th').forEach(t => t.style.background = '');
-            th.style.background = '#e5e7eb';
+
+            // Update sort indicators
+            document.querySelectorAll('th').forEach(t => {
+                t.classList.remove('sorted-asc', 'sorted-desc');
+            });
+            th.classList.add(state.direction === 'ASC' ? 'sorted-asc' : 'sorted-desc');
+
             loadData();
         });
     });
@@ -543,15 +1444,24 @@
         const payload = collectForm();
         const method = id ? 'PUT' : 'POST';
         const url = id ? `${apiBase}/${id}` : apiBase;
-        
+
+        const submitBtn = document.querySelector('#editForm button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> 保存中...';
+        submitBtn.disabled = true;
+
         try {
             const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
             if (!res.ok) throw new Error('保存失败');
-            showToast('保存成功');
+            showToast(id ? '更新成功' : '创建成功');
             clearForm();
             loadData();
+            loadStats();
         } catch (e) {
             showToast(e.message, 'error');
+        } finally {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
         }
     });
 
@@ -560,16 +1470,19 @@
     // Upload Logic
     document.getElementById('uploadBtn').addEventListener('click', async () => {
         const fileInput = document.getElementById('excelFile');
-        if (!fileInput.files.length) { showToast('请先选择 Excel 文件', 'error'); return; }
-        
+        if (!fileInput.files.length) {
+            showToast('请先选择文件', 'error');
+            return;
+        }
+
         const btn = document.getElementById('uploadBtn');
         const originalText = btn.innerHTML;
-        btn.innerHTML = '上传中...';
+        btn.innerHTML = '<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> 上传中...';
         btn.disabled = true;
 
         const form = new FormData();
         form.append('file', fileInput.files[0]);
-        
+
         try {
             const res = await fetch(`${apiBase}/upload`, { method: 'POST', body: form });
             if (!res.ok) {
@@ -579,7 +1492,8 @@
             const data = await res.json();
             showToast(`成功导入 ${data.importedCount} 条数据`);
             loadData();
-            fileInput.value = ''; // clear input
+            loadStats();
+            fileInput.value = '';
         } catch (e) {
             showToast(`导入失败: ${e.message}`, 'error');
         } finally {
@@ -590,6 +1504,7 @@
 
     // Initial Load
     loadData();
+    loadStats();
 </script>
 </body>
 </html>

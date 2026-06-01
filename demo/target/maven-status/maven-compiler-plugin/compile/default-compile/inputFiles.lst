@@ -1,8 +1,11 @@
+D:\steel\demo\src\main\java\com\example\demo\config\CorsConfig.java
 D:\steel\demo\src\main\java\com\example\demo\config\DataInitializer.java
 D:\steel\demo\src\main\java\com\example\demo\config\EmbeddedMongoConfig.java
+D:\steel\demo\src\main\java\com\example\demo\config\ValidationConfig.java
 D:\steel\demo\src\main\java\com\example\demo\controller\GlobalExceptionHandler.java
 D:\steel\demo\src\main\java\com\example\demo\controller\SteelItemController.java
 D:\steel\demo\src\main\java\com\example\demo\DemoApplication.java
+D:\steel\demo\src\main\java\com\example\demo\model\FileUploadValidator.java
 D:\steel\demo\src\main\java\com\example\demo\model\SteelItem.java
 D:\steel\demo\src\main\java\com\example\demo\model\SteelItemQuery.java
 D:\steel\demo\src\main\java\com\example\demo\repository\SteelItemRepository.java
